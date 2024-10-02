@@ -28,6 +28,7 @@ To run this example, you need to:
 func main() {
 	ctx := context.Background()
 
+	// Create a new CDP client
 	client, err := coinbase.NewClient(
 		coinbase.WithAPIKeyFromJSON(os.Getenv("CDP_API_KEY_PATH")),
 	)
@@ -35,9 +36,10 @@ func main() {
 		log.Fatalf("error creating coinbase client: %v", err)
 	}
 
+	// Can source devnet funds from the faucet: https://faucet.solana.com/
 	address := coinbase.NewExternalAddress(coinbase.SolanaDevnet, os.Getenv("SOLANA_ADDRESS"))
 
-	// Can source devnet funds from the faucet: https://faucet.solana.com/
+	// Get the stakeable balance of the address - this means the total amount that could be staked from the address
 	stakeableBalance, err := client.GetStakeableBalance(ctx, coinbase.Sol, address)
 	if err != nil {
 		log.Fatalf("error getting stakeable balance: %v", err)
@@ -45,6 +47,7 @@ func main() {
 
 	fmt.Printf("stakeable balance: %v\n", stakeableBalance.Amount())
 
+	// Build a stake operation to stake 0.1 SOL
 	stakingOperation, err := client.BuildStakeOperation(
 		ctx,
 		big.NewFloat(0.1),
@@ -61,6 +64,7 @@ func main() {
 	fmt.Printf("unsigned staking transaction: %v\n", transaction.UnsignedPayload())
 	privateKey, err := readPrivateKey(os.Getenv("SOLANA_PRIVATE_KEY_PATH"))
 
+	// Sign the transaction with the private key
 	err = stakingOperation.Sign(privateKey)
 	if err != nil {
 		log.Fatalf("error signing transaction: %v", err)
@@ -76,6 +80,7 @@ func main() {
 		log.Fatal("failed to cast raw transaction to solana.Transaction")
 	}
 
+	// Create a new RPC client. We're using the public devnet node here.
 	rpcClient := rpc.New("https://api.devnet.solana.com")
 	maxRetries := uint(5)
 	opts := rpc.TransactionOpts{
@@ -84,15 +89,19 @@ func main() {
 		PreflightCommitment: rpc.CommitmentProcessed,
 	}
 
+	// Send the signed transaction to the Solana network (in this case, devnet)
 	signature, err := rpcClient.SendTransactionWithOpts(ctx, solanaTx, opts)
 	if err != nil {
 		log.Fatalf("failed to send transaction: %v", err)
 	}
 
+	// Print the transaction hash and a link to the transaction on the Solana explorer
 	fmt.Printf("broadcasted transaction hash: %s\n", signature.String())
 	fmt.Printf("transaction link: https://explorer.solana.com/tx/%s?cluster=devnet", signature.String())
 }
 
+// NOTE: In production, the private key should be stored in a more secure fashion.
+// This is for demonstration purposes only.
 func readPrivateKey(filePath string) (*ed25519.PrivateKey, error) {
 	// Read the private key file
 	data, err := os.ReadFile(filePath)

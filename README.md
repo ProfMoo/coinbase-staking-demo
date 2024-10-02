@@ -2,7 +2,7 @@
 
 This repository is an example of how to stake from any Solana wallet in minutes. This codebase uses the [CDP Golang SDK](https://github.com/coinbase/coinbase-sdk-go).
 
-Please check out [our docs](https://docs.cdp.coinbase.com/staking/docs/welcome) to learn more! Also check out our [demo video](https://www.loom.com/share/1be3b9bb536d4edead9345b841d1fee4).
+Please check out [our docs](https://docs.cdp.coinbase.com/staking/docs/welcome) to learn more! Also check out our [demo video](https://www.loom.com/share/1be3b9bb536d4edead9345b841d1fee4) of this repository for more details!
 
 > **NOTE: This example is for demonstration purposes only.**
 > Make sure to persist your private keys in a secure fashion.
